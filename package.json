@@ -1,5 +1,5 @@
 {
-  "name": "react-qr-scanner",
+  "name": "react-code",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,6 +11,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "html5-qrcode": "^2.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
