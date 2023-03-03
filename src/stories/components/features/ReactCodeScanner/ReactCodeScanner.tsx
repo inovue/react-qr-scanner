@@ -1,16 +1,31 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import ReactCode from '../ReactCode/ReactCode'
 import {FooterBar} from '../../ui/FooterBar/FooterBar'
 import { Html5QrcodeScannerState } from 'html5-qrcode'
-import { CameraDevice } from 'html5-qrcode/esm/camera/core'
+import { BooleanCameraCapability, CameraDevice, RangeCameraCapability } from 'html5-qrcode/esm/camera/core'
+
+import {styles} from './ReactCodeScanner.css'
 
 export const ReactCodeScanner = () => {
-  const [state, setState] = useState<Html5QrcodeScannerState|undefined>(Html5QrcodeScannerState.NOT_STARTED)
+  const [state, setState] = useState<Html5QrcodeScannerState>()
   const [devices, setDevices] = useState<CameraDevice[]|undefined>()
   const [deviceId, setDeviceId] = useState<string>()
+  const [torch, setTorch] = useState<BooleanCameraCapability|undefined>()
+  const [zoom, setZoom] = useState<RangeCameraCapability|undefined>()
   
-  const onInitializedHandler = () => {
-    console.log('initialized')
+  const onInitializedHandler = (
+    devicesResponse: CameraDevice[] | undefined,
+    torchFeature: BooleanCameraCapability | undefined,
+    zoomFeature: RangeCameraCapability | undefined
+  ) => {
+    setDevices(devicesResponse);
+    setTorch(torchFeature);
+    setZoom(zoomFeature);
+    /*
+    if (devices && devices.length > 0) {
+      setDeviceId(devices[0].id)
+    }
+    */
   }
   const onDeviceChangeHandler = () => {
     setDeviceId(deviceId)
@@ -28,14 +43,35 @@ export const ReactCodeScanner = () => {
     setState(v)
   }
 
+  const [torchValue, setTorchValue] = useState<boolean>(false)
+  const toggleTorch = () => {
+    if(torch === undefined) return;
+    (async ()=>{
+      const v = !torch.value();
+      await torch.apply(v);
+      setTorchValue(v);
+    })();
+  }
   
+
   return (
-    <div>
-      <ReactCode persist state={state} onInitialized={onInitializedHandler} onScannerStateChange={onStateChangeHandler}></ReactCode>
-      <FooterBar state={state} onDeviceChange={onDeviceChangeHandler} onPause={onPauseHandler} onStart={onStartHandler} onStop={onStopHandler}></FooterBar>
-      <select value={deviceId} onChange={(e) => setDeviceId(e.target.value)}>
-        {devices && devices.map((device) => <option key={device.id} value={device.id}>{device.label}</option>)}
-      </select>
+    <div className={styles.root}>
+      <div className={styles.wrapper}>
+        {state !== undefined && Html5QrcodeScannerState.SCANNING <= state &&
+          <select value={deviceId} onChange={(e) => setDeviceId(e.target.value)}>
+            {devices && devices.map((device) => <option key={device.id} value={device.id}>{device.label}</option>)}
+          </select>
+        }
+        <div className={styles.canvas}>
+          <ReactCode persist state={state} onInitialized={onInitializedHandler} onScannerStateChange={onStateChangeHandler}></ReactCode>
+        </div>
+        {state !== undefined &&
+          <FooterBar state={state} onDeviceChange={onDeviceChangeHandler} onPause={onPauseHandler} onStart={onStartHandler} onStop={onStopHandler}></FooterBar>
+        }
+        {torch !== undefined &&
+          <button onClick={toggleTorch}>{!torchValue ? 'Torch on' : 'Torch off'}</button>
+        }
+      </div>
       
     </div>
   )

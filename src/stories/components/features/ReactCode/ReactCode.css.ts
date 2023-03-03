@@ -45,7 +45,11 @@ export const styles = {
 
   error:{
     wrapper: style({
-      aspectRatio: '1 / 1',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
     }),
     container: style({
       display: 'flex',

@@ -33,7 +33,7 @@ export const FooterBar:React.FC<FooterBarProps> = ({
         {state === Html5QrcodeScannerState.SCANNING && 
           <button className={styles.buttonWrapper} onClick={onPauseHandler}><FaPause color='white' size={16} /></button>
         }
-        {state === Html5QrcodeScannerState.PAUSED && 
+        {(state === Html5QrcodeScannerState.PAUSED || state === Html5QrcodeScannerState.NOT_STARTED) && 
           <button className={styles.buttonWrapper} onClick={onStartHandler}><FaPlay color='white' size={16} /></button>
         }
         <button className={styles.buttonWrapper} onClick={onStopHandler}><MdClose color='white' size={16}/></button>
