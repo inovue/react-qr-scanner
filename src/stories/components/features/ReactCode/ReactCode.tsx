@@ -60,7 +60,6 @@ const ReactCode: React.FC<ReactCodeProps> = ({
   }
 
   const start = async () => {
-    console.log('start')
     await qrScannerRef.current?.start( cameraId, config, onDecoded, onDecodeError).catch((err:Error)=>{ throw err; } );
     setStateProxy(Html5QrcodeScannerState.SCANNING);
   }
@@ -81,10 +80,9 @@ const ReactCode: React.FC<ReactCodeProps> = ({
     setStateProxy(Html5QrcodeScannerState.SCANNING);
   }
   
-  // pause 1s
-  const sleep = (ms:number=1000) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+  useEffect(()=>{
+    console.log("stateProxy", qrScannerRef.current?.getState());
+  }, [qrScannerRef.current?.getState()]);
 
   useEffect(() => {
     if(!qrScannerRef.current) qrScannerRef.current = new Html5Qrcode("qr-code-reader");
@@ -106,24 +104,22 @@ const ReactCode: React.FC<ReactCodeProps> = ({
 
   // onStateChange callback
   useEffect(()=>{
-    console.log("stateProxy", stateProxy);
     if(onScannerStateChange) onScannerStateChange(stateProxy);
   }, [stateProxy]);
 
   useEffect(()=>{
-    console.log("state", state);
     (async ()=>{
       try{
         if(state === undefined){
-            
+          
+          const devices = await Html5Qrcode.getCameras();
+          
           await start();
           if(onInitialized) {
-            // const devices = await Html5Qrcode.getCameras();
-            
             const capabilities = await qrScannerRef.current?.getRunningTrackCameraCapabilities();
             const torchFeature = capabilities?.torchFeature();
             const zoomFeature = capabilities?.zoomFeature();
-            onInitialized([], torchFeature, zoomFeature);
+            onInitialized(devices, torchFeature, zoomFeature);
           }
           
         }
@@ -136,7 +132,6 @@ const ReactCode: React.FC<ReactCodeProps> = ({
         else if(state === Html5QrcodeScannerState.SCANNING){
           if(qrScannerRef.current?.getState() === Html5QrcodeScannerState.PAUSED){
             await resume();
-            console.log(await qrScannerRef.current?.getRunningTrackCameraCapabilities());
           }else if(qrScannerRef.current?.getState() === Html5QrcodeScannerState.NOT_STARTED){
             await start();
           }else{
@@ -145,7 +140,7 @@ const ReactCode: React.FC<ReactCodeProps> = ({
         }
       }catch(err){
         if(err instanceof DOMException){
-          console.log(err)
+          console.error(err)
           if(err.name === "NotAllowedError") setScannerError(err);
           if(err.name === "NotFoundError") setScannerError(err);
         }
@@ -160,7 +155,6 @@ const ReactCode: React.FC<ReactCodeProps> = ({
   useEffect(()=>{
     const now = Date.now();
     if(((scannedAt + holdTime) < now) && decodeResult){
-      console.log('now', now, 'scannedAt', scannedAt, 'holdTime', holdTime);
       setScannedAt((_)=>now);
       setTick((_)=>({state: BarcodeIconState.SUCCESS}));
       if(!persist) setStateProxy((_)=>Html5QrcodeScannerState.PAUSED);
