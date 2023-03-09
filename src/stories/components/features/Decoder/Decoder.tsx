@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
 import { usePrevious } from "react-use";
 
 import { CameraDevice } from 'html5-qrcode/esm/camera/core';
 
+import { SlInfo, SlExclamation, SlClose } from 'react-icons/sl'
+import { IconBaseProps } from "react-icons";
 
 export type DecoderProps = {
   state: Html5QrcodeScannerState;
@@ -29,22 +31,20 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
   }, [state])
 
   useEffect(()=>{
-    console.log('torch', torch);
     if(!decoderRef.current) return;
     if(torch?.value === undefined) return;
     if(torch?.value === null) return;
     decoderRef.current.getRunningTrackCameraCapabilities().torchFeature().apply(torch.value).then(()=>{
-      console.log('Torch applied');
+      console.log('Torch applied', torch);
     });
   }, [torch])
 
   useEffect(()=>{
-    console.log('zoom', zoom);
     if(!decoderRef.current) return;
     if(!zoom?.value) return;
     if( zoom.value < zoom.min || zoom.max < zoom.value) return;
     decoderRef.current.getRunningTrackCameraCapabilities().zoomFeature().apply(zoom.value).then(()=>{
-      console.log('Zoom applied');
+      console.log('Zoom applied', zoom);
     });
   }, [zoom])
 
@@ -56,7 +56,7 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
   }
   const stop = async (clear:boolean=false) => {
     if(!decoderRef.current) return;
-    await decoderRef.current.stop();
+    if(Html5QrcodeScannerState.SCANNING <= state) await decoderRef.current.stop();
     if(clear) decoderRef.current.clear();
     onChangeTorch && onChangeTorch(undefined);
     onChangeZoom && onChangeZoom(undefined);
@@ -67,10 +67,12 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
     if(!decoderRef.current) return;
     switch(nextState) {
       case Html5QrcodeScannerState.SCANNING:
-        if( prevState === Html5QrcodeScannerState.PAUSED) {
+        if(prevState === undefined){
+          await start();
+        } else if( prevState === Html5QrcodeScannerState.PAUSED) {
           decoderRef.current.resume();
-        } else if (prevState === Html5QrcodeScannerState.NOT_STARTED || prevState === Html5QrcodeScannerState.SCANNING || prevState === undefined) {
-          if(prevState === Html5QrcodeScannerState.SCANNING) await stop();
+        } else if (Html5QrcodeScannerState.NOT_STARTED <= prevState) {
+          if(Html5QrcodeScannerState.SCANNING <= prevState) await stop();
           await start();
         }else{
           console.log('Unhandled state:', prevState);
@@ -122,12 +124,69 @@ export const getZoom = (decoder:Html5Qrcode):Zoom => {
   }
 }
 
+export type ScannerProps = {
+  state: Html5QrcodeScannerState;
+  facingMode?: 'user' | 'environment';
+  delay?: number;
+  timeout?: number;
+  format?: string;
+  onScanned: (result: string) => void;
+  onScanError?: (error: string) => void;
+}
+
 
 export const Scanner:React.FC = () => {
+  const [cameras, environmentError] = useCameras();
+  const Screen = useMemo(()=>{
+    console.log('cameras', cameras,'environmentError', environmentError)
+    if(cameras === undefined && environmentError === undefined){
+      return <InfoScreen type='info' message='Loading...' />
+    }else{
+      if(environmentError){
+        return <InfoScreen type='error' message={environmentError.message} />
+      } else if(!cameras || cameras.length === 0){
+        return <InfoScreen type='warn' message='Camera not found' />
+      }else{
+        return <ScannerScreen />
+      }
+    }
+  }, [cameras, environmentError])
+  return Screen
+}
+
+
+
+
+export type InfoScreenType = 'info'|'warn'|'error';
+export type InfoScreenProps = {
+  type?: InfoScreenType;
+  title?: string;
+  message?:string;
+  children?:React.ReactNode;
+}
+const InfoScreenIcon:React.FC<{type:InfoScreenType} & IconBaseProps> = (props) => {
+  switch(props.type){
+    case 'info': return <SlInfo {...props} />;
+    case 'warn': return <SlExclamation {...props} />;
+    case 'error': return <SlClose {...props} />;
+  }
+}
+export const InfoScreen:React.FC<InfoScreenProps> = ({type, title,  message, children}) => {
+  return (
+    <div className="card">
+      {type && <InfoScreenIcon type={type}/>}
+      {title && <div className="card-title">{title}</div>}
+      {message && <div className="card-message">{message}</div>}
+      {children && <div className="card-contents">{children}</div>}
+    </div>
+  )
+}
+
+export const ScannerScreen:React.FC = () => {
   const [state, setState] = useState<Html5QrcodeScannerState>(Html5QrcodeScannerState.SCANNING);
   const [torch, setTorch] = useState<Torch>();
   const [zoom, setZoom] = useState<Zoom>();
-  
+
   return (
     <div>
       <Decoder state={state} torch={torch} zoom={zoom} onChangeState={(v)=>setState(v)} onChangeTorch={(v)=>setTorch(v)} onChangeZoom={(v)=>setZoom(v)} />
@@ -160,11 +219,18 @@ export const Scanner:React.FC = () => {
 }
 
 
-export const useCameras = () => {
-  const [cameras, setCameras] = useState<CameraDevice[]|undefined>();
+export const useCameras = ():[CameraDevice[] | undefined, Error | undefined] => {
+  const [cameras, setCameras] = useState<CameraDevice[]>();
+  const [error, setError] = useState<Error>();
   useEffect(() => {
-    Html5Qrcode.getCameras().then(cameras => setCameras(cameras));
+    Html5Qrcode.getCameras().then(v => {
+      console.log('Cameras', v)
+      setCameras(v);
+    }).catch((e:Error) => {
+      console.error('Environment Error', e);
+      setError(e);
+    });
   }, []);
-  return cameras;
+  return [cameras, error];
 }
 
