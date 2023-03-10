@@ -202,9 +202,9 @@ export const ScannerScreen:React.FC = () => {
           
           { zoom && zoom.isSupported &&
             <div className={styles.zoom}>
-              <Button>+</Button>
+              <Button onClick={(_)=>{setZoom(()=>({...zoom, value:zoom.value ? zoom.value-(zoom.step*5) : zoom.min}))}}>-</Button>
                 <input type="range" min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value??zoom.min} onChange={(e)=>{setZoom(()=>({...zoom, value:Number(e.target.value)??zoom.min}))}}/> 
-              <Button>-</Button>
+              <Button onClick={(_)=>{setZoom(()=>({...zoom, value:zoom.value ? zoom.value+(zoom.step*5) : zoom.max}))}}>+</Button>
             </div>
           }
         </div>
