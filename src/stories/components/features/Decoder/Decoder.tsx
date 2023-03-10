@@ -7,6 +7,7 @@ import { CameraDevice } from 'html5-qrcode/esm/camera/core';
 import { SlInfo, SlExclamation, SlClose } from 'react-icons/sl'
 import { IconBaseProps } from "react-icons";
 
+
 export type DecoderProps = {
   state: Html5QrcodeScannerState;
   torch?: Torch;
@@ -14,39 +15,39 @@ export type DecoderProps = {
   onChangeState: (state:Html5QrcodeScannerState) => void;
   onChangeTorch?: (torch:Torch|undefined) => void;
   onChangeZoom?: (zoom:Zoom|undefined) => void;
+  onChangeCameras?: (cameras:CameraDevice[]|undefined) => void;
+  onError?: (error:Error) => void;
   id?: string;
 }
-export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeState, onChangeTorch, onChangeZoom, id='qr-code-reader'}) => {
+export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeState, onChangeTorch, onChangeZoom, onChangeCameras, onError, id='qr-code-reader'}) => {
   const decoderRef = useRef<Html5Qrcode>();
   const prevState = usePrevious(state);
   
   useEffect(()=>{
-    if(!decoderRef.current) decoderRef.current = new Html5Qrcode(id);
     return ()=>{ stop(true); }
-  }, [])
+  }, []);
 
   useEffect(()=>{
     console.log('prevState, state', prevState, state );
     request(state);
-  }, [state])
+  }, [state]);
 
   useEffect(()=>{
     if(!decoderRef.current) return;
-    if(torch?.value === undefined) return;
-    if(torch?.value === null) return;
+    if(torch?.value === undefined || torch?.value === null) return;
     decoderRef.current.getRunningTrackCameraCapabilities().torchFeature().apply(torch.value).then(()=>{
       console.log('Torch applied', torch);
     });
-  }, [torch])
+  }, [torch]);
 
   useEffect(()=>{
     if(!decoderRef.current) return;
-    if(!zoom?.value) return;
-    if( zoom.value < zoom.min || zoom.max < zoom.value) return;
+    if(zoom?.value === undefined || zoom?.value === null || (zoom.value < zoom.min || zoom.max < zoom.value)) return;
     decoderRef.current.getRunningTrackCameraCapabilities().zoomFeature().apply(zoom.value).then(()=>{
       console.log('Zoom applied', zoom);
     });
-  }, [zoom])
+  }, [zoom]);
+
 
   const start = async () => {
     if(!decoderRef.current) return;
@@ -56,7 +57,7 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
   }
   const stop = async (clear:boolean=false) => {
     if(!decoderRef.current) return;
-    if(Html5QrcodeScannerState.SCANNING <= state) await decoderRef.current.stop();
+    if(Html5QrcodeScannerState.SCANNING <= decoderRef.current.getState()) await decoderRef.current.stop();
     if(clear) decoderRef.current.clear();
     onChangeTorch && onChangeTorch(undefined);
     onChangeZoom && onChangeZoom(undefined);
@@ -64,7 +65,16 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
   
 
   const request = async (nextState:Html5QrcodeScannerState) => {
-    if(!decoderRef.current) return;
+    if(!decoderRef.current){
+      decoderRef.current = new Html5Qrcode(id);
+      await Html5Qrcode.getCameras().then(cameras => {
+        onChangeCameras && onChangeCameras(cameras);
+      }).catch((error:Error) => {
+        console.log('[init] error', error);
+        onError && onError(error);
+      })
+    }
+    
     switch(nextState) {
       case Html5QrcodeScannerState.SCANNING:
         if(prevState === undefined){
@@ -79,7 +89,10 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
         }
         break;
       case Html5QrcodeScannerState.PAUSED:
-        if(prevState !== Html5QrcodeScannerState.SCANNING) await start();
+        if(decoderRef.current.getState() < Html5QrcodeScannerState.SCANNING){
+          await start();
+          await sleep(100);
+        }
         decoderRef.current.pause(true);
         break;
       case Html5QrcodeScannerState.NOT_STARTED:
@@ -88,7 +101,8 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
     }
     onChangeState && onChangeState(nextState);
   }
-  return <div id={id} />
+  
+  return <div id={id} />;
 }
 
 export type Torch = {
@@ -133,28 +147,9 @@ export type ScannerProps = {
   onScanned: (result: string) => void;
   onScanError?: (error: string) => void;
 }
-
-
 export const Scanner:React.FC = () => {
-  const [cameras, environmentError] = useCameras();
-  const Screen = useMemo(()=>{
-    console.log('cameras', cameras,'environmentError', environmentError)
-    if(cameras === undefined && environmentError === undefined){
-      return <InfoScreen type='info' message='Loading...' />
-    }else{
-      if(environmentError){
-        return <InfoScreen type='error' message={environmentError.message} />
-      } else if(!cameras || cameras.length === 0){
-        return <InfoScreen type='warn' message='Camera not found' />
-      }else{
-        return <ScannerScreen />
-      }
-    }
-  }, [cameras, environmentError])
-  return Screen
+  return <ScannerScreen />
 }
-
-
 
 
 export type InfoScreenType = 'info'|'warn'|'error';
@@ -187,15 +182,28 @@ export const ScannerScreen:React.FC = () => {
   const [torch, setTorch] = useState<Torch>();
   const [zoom, setZoom] = useState<Zoom>();
 
+  const [cameras, setCameras] = useState<CameraDevice[]>();
+  const [error, setError] = useState<Error>();
+
   return (
     <div>
-      <Decoder state={state} torch={torch} zoom={zoom} onChangeState={(v)=>setState(v)} onChangeTorch={(v)=>setTorch(v)} onChangeZoom={(v)=>setZoom(v)} />
+      {error && <InfoScreen type='error' title="ERROR" message={error.message}></InfoScreen>}
+      <Decoder state={state} torch={torch} zoom={zoom} onChangeState={(v)=>setState(v)} onChangeTorch={(v)=>setTorch(v)} onChangeZoom={(v)=>setZoom(v)} onChangeCameras={(v)=>setCameras(v)} onError={(v)=>setError(v)} />
       <section>
         <p>Decoder</p>
         <button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}>Play</button>
         <button onClick={()=>setState((_)=>Html5QrcodeScannerState.PAUSED)}>Pause</button>
         <button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}>Resume</button>
         <button onClick={()=>setState((_)=>Html5QrcodeScannerState.NOT_STARTED)}>Stop</button>
+      </section>
+      <section>
+        <p>Camera</p>
+        {cameras && cameras.length > 0 ?
+          <select>
+            {cameras.map((camera, index) => <option key={index} value={camera.id}>{camera.label}</option>)}
+          </select>:
+          <p>camera not found.</p>
+        }
       </section>
       <section>
         <p>Torch</p>
@@ -219,18 +227,5 @@ export const ScannerScreen:React.FC = () => {
 }
 
 
-export const useCameras = ():[CameraDevice[] | undefined, Error | undefined] => {
-  const [cameras, setCameras] = useState<CameraDevice[]>();
-  const [error, setError] = useState<Error>();
-  useEffect(() => {
-    Html5Qrcode.getCameras().then(v => {
-      console.log('Cameras', v)
-      setCameras(v);
-    }).catch((e:Error) => {
-      console.error('Environment Error', e);
-      setError(e);
-    });
-  }, []);
-  return [cameras, error];
-}
 
+export const sleep = (msec:number) => new Promise(resolve => setTimeout(resolve, msec));
