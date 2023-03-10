@@ -177,6 +177,11 @@ export const InfoScreen:React.FC<InfoScreenProps> = ({type, title,  message, chi
   )
 }
 
+import {styles} from './Scanner.css';
+import {Button} from '../../ui/Button/Button';
+import { FaPlay, FaPause } from 'react-icons/fa';
+import {MdFlipCameraAndroid, MdFlashlightOn, MdFlashlightOff, } from 'react-icons/md';
+
 export const ScannerScreen:React.FC = () => {
   const [state, setState] = useState<Html5QrcodeScannerState>(Html5QrcodeScannerState.SCANNING);
   const [torch, setTorch] = useState<Torch>();
@@ -186,42 +191,36 @@ export const ScannerScreen:React.FC = () => {
   const [error, setError] = useState<Error>();
 
   return (
-    <div>
-      {error && <InfoScreen type='error' title="ERROR" message={error.message}></InfoScreen>}
-      <Decoder state={state} torch={torch} zoom={zoom} onChangeState={(v)=>setState(v)} onChangeTorch={(v)=>setTorch(v)} onChangeZoom={(v)=>setZoom(v)} onChangeCameras={(v)=>setCameras(v)} onError={(v)=>setError(v)} />
-      <section>
-        <p>Decoder</p>
-        <button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}>Play</button>
-        <button onClick={()=>setState((_)=>Html5QrcodeScannerState.PAUSED)}>Pause</button>
-        <button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}>Resume</button>
-        <button onClick={()=>setState((_)=>Html5QrcodeScannerState.NOT_STARTED)}>Stop</button>
-      </section>
-      <section>
-        <p>Camera</p>
-        {cameras && cameras.length > 0 ?
-          <select>
-            {cameras.map((camera, index) => <option key={index} value={camera.id}>{camera.label}</option>)}
-          </select>:
-          <p>camera not found.</p>
-        }
-      </section>
-      <section>
-        <p>Torch</p>
-        {torch && torch.isSupported ? 
-          <button onClick={()=>setTorch(()=>({...torch, value:!torch.value}))}>{!torch.value?'ON':'OFF'}</button> :
-          <p>not spported.</p>
-        }
-      </section>
-      <section>
-        <p>Zoom</p>
-        { zoom && zoom.isSupported ?
-          <div>
-            <p>{`min:${zoom.min} max:${zoom.max} step:${zoom.step} value:${zoom.value}`}</p>
-            <input type="range" min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value??zoom.min} onChange={(e)=>{setZoom(()=>({...zoom, value:Number(e.target.value)??zoom.min}))}}/> 
-          </div>:
-          <p>not spported.</p>
-        }
-      </section>
+    <div className={styles.screen}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.NOT_STARTED)}><SlClose /></Button>
+        </div>
+        <div className={styles.main}>
+          {error && <InfoScreen type='error' title="ERROR" message={error.message}></InfoScreen>}
+          <Decoder state={state} torch={torch} zoom={zoom} onChangeState={(v)=>setState(v)} onChangeTorch={(v)=>setTorch(v)} onChangeZoom={(v)=>setZoom(v)} onChangeCameras={(v)=>setCameras(v)} onError={(v)=>setError(v)} />
+          
+          { zoom && zoom.isSupported &&
+            <div className={styles.zoom}>
+              <Button>+</Button>
+                <input type="range" min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value??zoom.min} onChange={(e)=>{setZoom(()=>({...zoom, value:Number(e.target.value)??zoom.min}))}}/> 
+              <Button>-</Button>
+            </div>
+          }
+        </div>
+        <div className={styles.footer}>
+          <div className={styles.buttonGroup}>
+            <Button disabled={!cameras || cameras.length <= 0}><MdFlipCameraAndroid /></Button> 
+            {state === Html5QrcodeScannerState.SCANNING ?
+              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.PAUSED)}><FaPause /></Button>:
+              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}><FaPlay /></Button>
+            }
+            <Button disabled={!torch || !torch.isSupported} onClick={()=>setTorch(()=>(torch ? {...torch, value:!torch.value} : undefined))}>
+              {!torch?.value?<MdFlashlightOn />:<MdFlashlightOff />}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

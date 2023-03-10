@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@vanilla-extract/css": "^1.9.5",
+    "@vanilla-extract/recipes": "^0.3.0",
     "html5-qrcode": "^2.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
