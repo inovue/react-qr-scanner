@@ -1,24 +1,20 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {ReactCodeScanner} from './ReactCodeScanner';
+import {Scanner} from './Scanner';
 
 const meta = {
-  title: 'ReactCodeScanner',
-  component: ReactCodeScanner,
+  title: 'Scanner',
+  component: Scanner,
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/7.0/react/writing-docs/docs-page
   tags: [],
   parameters: {
     // More on how to position stories at: https://storybook.js.org/docs/7.0/react/configure/story-layout
     layout: 'fullscreen',
   },
-} satisfies Meta<typeof ReactCodeScanner>;
+} satisfies Meta<typeof Scanner>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const ReactCode: Story = {
-  args: {
-    persist: true,
-  },
-};
+export const Primary: Story = { args: { } };
 
 

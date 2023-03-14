@@ -1,4 +1,4 @@
-import {button} from './Button.css'
+import {button} from './style.css'
 
 export type ButtonProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl'

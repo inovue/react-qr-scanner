@@ -1,66 +1,43 @@
-import React, { useEffect } from 'react'
-
+import React from 'react'
 import {Html5QrcodeSupportedFormats} from "html5-qrcode/esm/core";
-
-import {ImQrcode} from "react-icons/im";
-import {RiBarcodeFill} from "react-icons/ri";
-
-import { styles } from "./BarcodeIcon.css";
+import {QR, EAN8, EAN13} from "./svg";
+import { icon } from "./style.css";
 
 export const Icon = {
-  [Html5QrcodeSupportedFormats.QR_CODE]: ImQrcode,
-  [Html5QrcodeSupportedFormats.AZTEC]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.CODABAR]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.CODE_39]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.CODE_93]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.CODE_128]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.DATA_MATRIX]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.MAXICODE]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.ITF]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.EAN_13]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.EAN_8]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.PDF_417]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.RSS_14]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.RSS_EXPANDED]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.UPC_A]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.UPC_E]: RiBarcodeFill,
-  [Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION]: RiBarcodeFill
-}
-
-export type TickState = {
-  state: BarcodeIconState;
-} | undefined
-
-export enum BarcodeIconState {
-  DEFAULT = 0,
-  SUCCESS = 1,
-  ERROR = -1,
+  [Html5QrcodeSupportedFormats.QR_CODE]: QR,
+  [Html5QrcodeSupportedFormats.AZTEC]: EAN13,
+  [Html5QrcodeSupportedFormats.CODABAR]: EAN13,
+  [Html5QrcodeSupportedFormats.CODE_39]: EAN13,
+  [Html5QrcodeSupportedFormats.CODE_93]: EAN13,
+  [Html5QrcodeSupportedFormats.CODE_128]: EAN13,
+  [Html5QrcodeSupportedFormats.DATA_MATRIX]: EAN13,
+  [Html5QrcodeSupportedFormats.MAXICODE]: EAN13,
+  [Html5QrcodeSupportedFormats.ITF]: EAN13,
+  [Html5QrcodeSupportedFormats.EAN_13]: EAN13,
+  [Html5QrcodeSupportedFormats.EAN_8]: EAN8,
+  [Html5QrcodeSupportedFormats.PDF_417]: EAN13,
+  [Html5QrcodeSupportedFormats.RSS_14]: EAN13,
+  [Html5QrcodeSupportedFormats.RSS_EXPANDED]: EAN13,
+  [Html5QrcodeSupportedFormats.UPC_A]: EAN13,
+  [Html5QrcodeSupportedFormats.UPC_E]: EAN13,
+  [Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION]: EAN13
 }
 
 export type BarcodeIconProps = {
-  tick?: TickState;
-  format?: Html5QrcodeSupportedFormats;
-  size?: number;
+  format: Html5QrcodeSupportedFormats;
+  rumble?: boolean;
+  color?: 'success'|'error'|'base';
 }
 
 export const BarcodeIcon:React.FC<BarcodeIconProps> = ({
-  tick,
   format=Html5QrcodeSupportedFormats.QR_CODE,
-  size=120,
+  rumble=false,
+  color='base',
 }) => {
-
-  const [state, setState] = React.useState<BarcodeIconState>(BarcodeIconState.DEFAULT);
-  const [tickTimeoutId, setTickTimeoutId] = React.useState<number|undefined>(undefined);
-
-  useEffect(()=>{ 
-    if(tick) setState(tick.state);
-    if(tickTimeoutId) window.clearTimeout(tickTimeoutId);
-    setTickTimeoutId(window.setTimeout(()=>{ setState(BarcodeIconState.DEFAULT); }, 300));
-  }, [tick]);
   
   return (
     <>
-      { React.createElement(Icon[format], {size,  className: `${styles.icon} ${styles.stateColor[state]}`}) }
+      { React.createElement(Icon[format], {className:icon({color:color, rumble:rumble})}) }
     </>
   )
 }

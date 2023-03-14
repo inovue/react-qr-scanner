@@ -1,33 +1,44 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import React from 'react';
-import { BarcodeIcon, BarcodeIconState, TickState } from './BarcodeIcon';
+import { Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { BarcodeIcon } from './BarcodeIcon';
 
 const meta = {
   title: 'UI/BarcodeIcon',
   component: BarcodeIcon,
-  tags: ['autodocs'],
+  // tags: ['autodocs'],
   parameters: {
     layout: 'centered',
+    backgrounds: {
+      default: 'dark',
+    }
   },
+  
 } satisfies Meta<typeof BarcodeIcon>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 
-const Template:React.FC = () => {
-  const [tick, setTick] = React.useState<TickState>();
+export const QR_CODE: Story = {
+  args: {
+    format: Html5QrcodeSupportedFormats.QR_CODE,
+    rumble: false,
+    color: 'base'
+  },
+};
 
-  return (
-    <div style={{backgroundColor:'lightgrey', padding:'2rem', display:'flex', flexDirection:'column', gap:'1rem', alignItems:'center'}}>
-      <BarcodeIcon tick={tick}/>
-      <nav>
-        <button onClick={()=>setTick({state: BarcodeIconState.SUCCESS})} style={{color:'green'}}>SUCCESS</button>
-        <button onClick={()=>setTick({state: BarcodeIconState.ERROR})} style={{color:'red'}}>ERROR</button>
-        <button onClick={()=>setTick({state: BarcodeIconState.DEFAULT})}>DEFAULT</button>
-      </nav>
-    </div>
-  )
-}
+export const EAN_13: Story = {
+  args: {
+    format: Html5QrcodeSupportedFormats.EAN_13,
+    rumble: true,
+    color: 'success'
+  },
+};
 
-export const QrcodeIcon = Template.bind({});
+export const EAN_8: Story = {
+  args: {
+    format: Html5QrcodeSupportedFormats.EAN_8,
+    rumble: true,
+    color: 'error'
+  },
+};

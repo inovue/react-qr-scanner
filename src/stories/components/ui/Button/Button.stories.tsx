@@ -2,15 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import { Button } from './Button';
 import { FaPlay, FaPause } from 'react-icons/fa';
-import {MdFlipCameraAndroid, MdFlashlightOn, MdFlashlightOff, } from 'react-icons/md';
-import {SlClose} from 'react-icons/sl';
+import { MdFlipCameraAndroid, MdFlashlightOn, MdFlashlightOff } from 'react-icons/md';
+import { SlClose } from 'react-icons/sl';
 
 const meta = {
   title: 'UI/Button',
   component: Button,
   // tags: ['autodocs'],
   parameters: {
-    layout: 'centered',    
+    layout: 'centered',
     backgrounds: {
       default: 'dark',
     }

@@ -19,7 +19,6 @@ export const styles = {
     alignItems: 'center',
   }),
   header: style({
-    width: '100%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -42,12 +41,11 @@ export const styles = {
     padding: '1rem',
   }),
   footer: style({
-    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '2rem 1rem',
+    padding: '.5rem 1rem 2rem 1rem',
   }),
   buttonGroup: style({
     display: 'flex',

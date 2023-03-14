@@ -1,11 +1,8 @@
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
 import { usePrevious } from "react-use";
 
 import { CameraDevice } from 'html5-qrcode/esm/camera/core';
-
-import { SlInfo, SlExclamation, SlClose } from 'react-icons/sl'
-import { IconBaseProps } from "react-icons";
 
 
 export type DecoderProps = {
@@ -101,7 +98,6 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
     }
     onChangeState && onChangeState(nextState);
   }
-  
   return <div id={id} />;
 }
 
@@ -109,14 +105,6 @@ export type Torch = {
   isSupported: boolean;
   value: boolean | null;
 }
-export type Zoom = {
-  isSupported: boolean;
-  min: number;
-  max: number;
-  step: number;
-  value: number | null;
-}
-
 export const getTorch = (decoder:Html5Qrcode):Torch => {
   const capabilities = decoder.getRunningTrackCameraCapabilities();
   const torchFeature = capabilities.torchFeature();
@@ -126,6 +114,13 @@ export const getTorch = (decoder:Html5Qrcode):Torch => {
   }
 }
 
+export type Zoom = {
+  isSupported: boolean;
+  min: number;
+  max: number;
+  step: number;
+  value: number | null;
+}
 export const getZoom = (decoder:Html5Qrcode):Zoom => {
   const capabilities = decoder.getRunningTrackCameraCapabilities();
   const zoomFeature = capabilities.zoomFeature();
@@ -137,94 +132,6 @@ export const getZoom = (decoder:Html5Qrcode):Zoom => {
     value: zoomFeature.value(),
   }
 }
-
-export type ScannerProps = {
-  state: Html5QrcodeScannerState;
-  facingMode?: 'user' | 'environment';
-  delay?: number;
-  timeout?: number;
-  format?: string;
-  onScanned: (result: string) => void;
-  onScanError?: (error: string) => void;
-}
-export const Scanner:React.FC = () => {
-  return <ScannerScreen />
-}
-
-
-export type InfoScreenType = 'info'|'warn'|'error';
-export type InfoScreenProps = {
-  type?: InfoScreenType;
-  title?: string;
-  message?:string;
-  children?:React.ReactNode;
-}
-const InfoScreenIcon:React.FC<{type:InfoScreenType} & IconBaseProps> = (props) => {
-  switch(props.type){
-    case 'info': return <SlInfo {...props} />;
-    case 'warn': return <SlExclamation {...props} />;
-    case 'error': return <SlClose {...props} />;
-  }
-}
-export const InfoScreen:React.FC<InfoScreenProps> = ({type, title,  message, children}) => {
-  return (
-    <div className="card">
-      {type && <InfoScreenIcon type={type}/>}
-      {title && <div className="card-title">{title}</div>}
-      {message && <div className="card-message">{message}</div>}
-      {children && <div className="card-contents">{children}</div>}
-    </div>
-  )
-}
-
-import {styles} from './Scanner.css';
-import {Button} from '../../ui/Button/Button';
-import { FaPlay, FaPause } from 'react-icons/fa';
-import {MdFlipCameraAndroid, MdFlashlightOn, MdFlashlightOff, } from 'react-icons/md';
-
-export const ScannerScreen:React.FC = () => {
-  const [state, setState] = useState<Html5QrcodeScannerState>(Html5QrcodeScannerState.SCANNING);
-  const [torch, setTorch] = useState<Torch>();
-  const [zoom, setZoom] = useState<Zoom>();
-
-  const [cameras, setCameras] = useState<CameraDevice[]>();
-  const [error, setError] = useState<Error>();
-
-  return (
-    <div className={styles.screen}>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.NOT_STARTED)}><SlClose /></Button>
-        </div>
-        <div className={styles.main}>
-          {error && <InfoScreen type='error' title="ERROR" message={error.message}></InfoScreen>}
-          <Decoder state={state} torch={torch} zoom={zoom} onChangeState={(v)=>setState(v)} onChangeTorch={(v)=>setTorch(v)} onChangeZoom={(v)=>setZoom(v)} onChangeCameras={(v)=>setCameras(v)} onError={(v)=>setError(v)} />
-          
-          { zoom && zoom.isSupported &&
-            <div className={styles.zoom}>
-              <Button onClick={(_)=>{setZoom(()=>({...zoom, value:zoom.value ? zoom.value-(zoom.step*5) : zoom.min}))}}>-</Button>
-                <input type="range" min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value??zoom.min} onChange={(e)=>{setZoom(()=>({...zoom, value:Number(e.target.value)??zoom.min}))}}/> 
-              <Button onClick={(_)=>{setZoom(()=>({...zoom, value:zoom.value ? zoom.value+(zoom.step*5) : zoom.max}))}}>+</Button>
-            </div>
-          }
-        </div>
-        <div className={styles.footer}>
-          <div className={styles.buttonGroup}>
-            <Button disabled={!cameras || cameras.length <= 0}><MdFlipCameraAndroid /></Button> 
-            {state === Html5QrcodeScannerState.SCANNING ?
-              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.PAUSED)}><FaPause /></Button>:
-              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}><FaPlay /></Button>
-            }
-            <Button disabled={!torch || !torch.isSupported} onClick={()=>setTorch(()=>(torch ? {...torch, value:!torch.value} : undefined))}>
-              {!torch?.value?<MdFlashlightOn />:<MdFlashlightOff />}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 
 
 export const sleep = (msec:number) => new Promise(resolve => setTimeout(resolve, msec));
