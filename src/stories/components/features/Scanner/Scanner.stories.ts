@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { Html5QrcodeScannerState, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import {Scanner} from './Scanner';
 
 const meta = {
-  title: 'Scanner',
+  title: 'Feature/Scanner',
   component: Scanner,
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/7.0/react/writing-docs/docs-page
   tags: [],
@@ -15,6 +16,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = { args: { } };
+export const Environment: Story = { 
+  args: {
+    state: Html5QrcodeScannerState.SCANNING,
+    facingMode: 'environment',
+    delay: 1000,
+    timeout: 20000,
+    format: Html5QrcodeSupportedFormats.QR_CODE,
+    onScanSuccess: (result) => console.log(result),
+    onScanError: (error) => console.error(error)
+  }
+};
 
 

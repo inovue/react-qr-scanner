@@ -22,8 +22,8 @@ export const button = recipe({
 
   variants: {
     size: {
-      sm:{fontSize: '1rem',},
-      md:{fontSize: '1.5rem',},
+      sm:{fontSize: '1.3rem',},
+      md:{fontSize: '1.75rem',},
       lg:{fontSize: '2rem',},
       xl:{fontSize: '3rem',}
     },

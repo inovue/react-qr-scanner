@@ -23,10 +23,11 @@ export const Icon = {
   [Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION]: EAN13
 }
 
+export type IconColor = 'success'|'error'|'base'
 export type BarcodeIconProps = {
   format: Html5QrcodeSupportedFormats;
-  rumble?: boolean;
-  color?: 'success'|'error'|'base';
+  rumble?: boolean | null;
+  color?: IconColor;
 }
 
 export const BarcodeIcon:React.FC<BarcodeIconProps> = ({
@@ -34,10 +35,9 @@ export const BarcodeIcon:React.FC<BarcodeIconProps> = ({
   rumble=false,
   color='base',
 }) => {
-  
   return (
     <>
-      { React.createElement(Icon[format], {className:icon({color:color, rumble:rumble})}) }
+      { React.createElement(Icon[format], {className:icon({color:color, rumble:!!rumble})}) }
     </>
   )
 }

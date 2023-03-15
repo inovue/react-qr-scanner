@@ -12,14 +12,14 @@ const rumble = keyframes({
 
 export const icon = recipe({
   base: {
-    width: "150px",
-    height: "150px",
+    width: "120px",
+    height: "120px",
   },
   variants: {
     color: {
-      base: { fill: "rgba(255, 255, 255, 0.5)" },
-      success: { fill: `hsl(${OP.green9Hsl} / 50%)` },
-      error: { fill: `hsl(${OP.red9Hsl} / 50%)` },
+      base: { fill: "rgba(255, 255, 255, 0.7)" },
+      success: { fill: `hsl(${OP.green9Hsl} / 70%)` },
+      error: { fill: `hsl(${OP.red9Hsl} / 70%)` },
     },
     rumble:{
       true: {

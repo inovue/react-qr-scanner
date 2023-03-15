@@ -5,5 +5,5 @@ export type ButtonProps = {
 } & JSX.IntrinsicElements['button']
 
 export const Button = (props: ButtonProps) => {
-  return <button {...props} className={button({disabled:props.disabled, size:props.size})} >{props.children}</button>
+  return <button {...props} className={button({disabled:props.disabled, size:props.size??'md'})} >{props.children}</button>
 }

@@ -3,6 +3,7 @@ import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
 import { usePrevious } from "react-use";
 
 import { CameraDevice } from 'html5-qrcode/esm/camera/core';
+import { QrcodeSuccessCallback, QrcodeErrorCallback } from "html5-qrcode/esm/core";
 
 
 export type DecoderProps = {
@@ -14,9 +15,23 @@ export type DecoderProps = {
   onChangeZoom?: (zoom:Zoom|undefined) => void;
   onChangeCameras?: (cameras:CameraDevice[]|undefined) => void;
   onError?: (error:Error) => void;
+
+  onScanSuccess?: QrcodeSuccessCallback;
+  onScanError?: QrcodeErrorCallback;
+
   id?: string;
 }
-export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeState, onChangeTorch, onChangeZoom, onChangeCameras, onError, id='qr-code-reader'}) => {
+export const Decoder:React.FC<DecoderProps> = ({
+  state, torch, zoom, 
+  onChangeState, 
+  onChangeTorch, 
+  onChangeZoom, 
+  onChangeCameras, 
+  onError, 
+  onScanSuccess,
+  onScanError,
+  id='qr-code-reader'
+}) => {
   const decoderRef = useRef<Html5Qrcode>();
   const prevState = usePrevious(state);
   
@@ -39,8 +54,9 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
 
   useEffect(()=>{
     if(!decoderRef.current) return;
-    if(zoom?.value === undefined || zoom?.value === null || (zoom.value < zoom.min || zoom.max < zoom.value)) return;
-    decoderRef.current.getRunningTrackCameraCapabilities().zoomFeature().apply(zoom.value).then(()=>{
+    if(zoom?.value === undefined || zoom?.value === null) return;
+    const appliedValue = zoom.value < zoom.min ? zoom.min : zoom.max < zoom.value ? zoom.max : zoom.value;
+    decoderRef.current.getRunningTrackCameraCapabilities().zoomFeature().apply(appliedValue).then(()=>{
       console.log('Zoom applied', zoom);
     });
   }, [zoom]);
@@ -48,7 +64,7 @@ export const Decoder:React.FC<DecoderProps> = ({state, torch, zoom, onChangeStat
 
   const start = async () => {
     if(!decoderRef.current) return;
-    await decoderRef.current.start({facingMode:'environment'},{fps: 10, qrbox: 250},(_,r)=>{console.log(r)},(_,r)=>{});
+    await decoderRef.current.start({facingMode:'environment'},{fps: 10, qrbox: 250}, onScanSuccess, onScanError);
     onChangeTorch && onChangeTorch(getTorch(decoderRef.current));
     onChangeZoom && onChangeZoom(getZoom(decoderRef.current));
   }
