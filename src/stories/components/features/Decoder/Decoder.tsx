@@ -149,7 +149,7 @@ export type Torch = {
   isSupported: boolean;
   value: boolean | null;
 }
-export const getTorch = (decoder:Html5Qrcode):Torch => {
+const getTorch = (decoder:Html5Qrcode):Torch => {
   const capabilities = decoder.getRunningTrackCameraCapabilities();
   const torchFeature = capabilities.torchFeature();
   return {
@@ -165,7 +165,7 @@ export type Zoom = {
   step: number;
   value: number | null;
 }
-export const getZoom = (decoder:Html5Qrcode):Zoom => {
+const getZoom = (decoder:Html5Qrcode):Zoom => {
   const capabilities = decoder.getRunningTrackCameraCapabilities();
   const zoomFeature = capabilities.zoomFeature();
   return {
@@ -178,4 +178,4 @@ export const getZoom = (decoder:Html5Qrcode):Zoom => {
 }
 
 
-export const sleep = (msec:number) => new Promise(resolve => setTimeout(resolve, msec));
+const sleep = (msec:number) => new Promise(resolve => setTimeout(resolve, msec));
