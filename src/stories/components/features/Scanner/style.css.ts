@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css'
+import { recipe } from '@vanilla-extract/recipes'
 
 export const styles = {
   screen: style({
@@ -8,13 +9,26 @@ export const styles = {
     backgroundColor: '#333333',
     position: 'relative',
   }),
-  container: style({
-    height: '100%',
-    maxWidth: '900px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+  container: recipe({
+    base:{
+      position: 'relative',
+      height: '100%',
+      maxWidth: '640px',
+      display: 'flex',
+    },
+    variants: {
+      orientation: {
+        portrait: {
+          flexDirection: 'column',
+        },
+        landscape: {
+          flexDirection: 'row',
+        }
+      }
+    },
+    defaultVariants: {
+      orientation: 'portrait',
+    },
   }),
   header: style({
     display: 'flex',
@@ -25,6 +39,7 @@ export const styles = {
   main: style({
     position: 'relative',
     width: '100%',
+    height: '100%',
     flexGrow: 1,
   }),
   barcodeIcon: style({
@@ -34,28 +49,70 @@ export const styles = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
   }),
-  zoom: style({
-    position: 'absolute',
-    bottom: '1rem',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '.8rem',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '1rem',
+  zoom: recipe({
+    base:{
+      position: 'absolute',
+      display: 'flex',
+      justifyContent: 'center',
+      //alignItems: 'center',
+      gap: '.8rem',
+    },
+    variants: {
+      orientation: {
+        portrait: {
+          flexDirection: 'row',
+          bottom: '3rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        },
+        landscape: {
+          flexDirection: 'column-reverse',
+          right: '2rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          '-webkit-appearance': 'slider-vertical',
+        },
+      }
+    },
+    defaultVariants: {
+      orientation: 'portrait',
+    }
   }),
-  footer: style({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '.5rem 1rem 2rem 1rem',
+  zoomRange: recipe({
+    base:{},
+    variants: {
+      orientation: {
+        portrait: {},
+        landscape: {
+          writingMode: 'vertical-lr',
+          WebkitAppearance: 'slider-vertical',
+          maxWidth: '2rem',
+        },
+      }
+    },
+    defaultVariants: {
+      orientation: 'portrait',
+    }
   }),
-  buttonGroup: style({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '5rem',
+  toolbar: recipe({
+    base:{
+      display: 'flex',
+      justifyContent: 'space-around'
+    },
+    variants: {
+      orientation: {
+        portrait: {
+          flexDirection: 'row',
+          padding: '1rem 0rem',
+        },
+        landscape: {
+          flexDirection: 'column',
+          padding: '0rem 1rem',
+        },
+      }
+    },
+    defaultVariants: {
+      orientation: 'portrait',
+    },
   }),
 }

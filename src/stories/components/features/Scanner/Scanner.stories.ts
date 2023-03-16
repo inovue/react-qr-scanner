@@ -19,9 +19,9 @@ type Story = StoryObj<typeof meta>;
 export const Environment: Story = { 
   args: {
     state: Html5QrcodeScannerState.SCANNING,
-    facingMode: 'environment',
+    mode: 'environment',
     delay: 1000,
-    timeout: 20000,
+    timeout: 0,
     format: Html5QrcodeSupportedFormats.QR_CODE,
     onScanSuccess: (result) => console.log(result),
     onScanError: (error) => console.error(error)
