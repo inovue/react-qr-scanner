@@ -106,7 +106,7 @@ export const styles = {
           padding: '1rem 0rem',
         },
         landscape: {
-          flexDirection: 'column',
+          flexDirection: 'column-reverse',
           padding: '0rem 1rem',
         },
       }
