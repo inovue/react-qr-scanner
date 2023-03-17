@@ -24,11 +24,12 @@ export type ScannerProps = {
   delay?: number;
   timeout?: number;
   format?: Html5QrcodeSupportedFormats;
+  fitScreen?: boolean;
   onScanSuccess: (result: Html5QrcodeResult) => void;
   onScanError?: (error: Html5QrcodeError) => void;
 }
 
-export const Scanner:React.FC<ScannerProps> = ({mode='environment', config={fps: 10, qrbox: 250}, delay=1000, timeout=60000, format=Html5QrcodeSupportedFormats.QR_CODE, onScanSuccess, onScanError}) => {
+export const Scanner:React.FC<ScannerProps> = ({mode='environment', config={fps: 10, qrbox: 250}, delay=1000, timeout=60000, format=Html5QrcodeSupportedFormats.QR_CODE, fitScreen=false ,onScanSuccess, onScanError}) => {
   const [state, setState] = useState<Html5QrcodeScannerState>(Html5QrcodeScannerState.SCANNING);
   const [torch, setTorch] = useState<Torch>();
   const [zoom, setZoom] = useState<Zoom>();
@@ -96,62 +97,65 @@ export const Scanner:React.FC<ScannerProps> = ({mode='environment', config={fps:
   }
 
   return (
-    <div className={styles.screen}>
-      <div className={styles.container({orientation:orientation})}>
-        {cameras !== undefined && 
-          <div className={styles.toolbar({orientation:orientation})}>
-            { Html5QrcodeScannerState.NOT_STARTED < state && 
-              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.NOT_STARTED)}>
-                <SlClose />
-              </Button>
-            }
-          </div>
-        }
-        <div className={styles.main}>
-          {cameras === undefined && !error && <Card type='loading'></Card>}
-          {error && <Card type='error' title="ERROR" message={error.message}></Card>}
-          <Decoder 
-            state={state} 
-            cameraId={cameraId}
-            config={config}
-            torch={torch} 
-            zoom={zoom} 
-            onChangeState={(v)=>setState(v)} 
-            onChangeTorch={(v)=>setTorch(v)} 
-            onChangeZoom={(v)=>setZoom(v)} 
-            onChangeCameraId={(v)=>!!v && setCameraId(v)} 
-            onChangeCameras={(v)=>setCameras(v)} 
-            onError={(v)=>setError(v)} 
-            onScanSuccess={ (_, result)=>{console.log(result); setScannerResult(result);}}
-            onScanError={(_, error)=>{/*console.log(error); setScannerError(error); */}}
-          />
-          {cameras !== undefined &&  Html5QrcodeScannerState.NOT_STARTED < state && 
-            <div className={styles.barcodeIcon}>
-              <BarcodeIcon format={format} rumble={!isUnrumble()} color={iconColor}/>
-            </div>
-          }
-
-          { zoom && zoom.isSupported && Html5QrcodeScannerState.NOT_STARTED < state &&
-            <div className={styles.zoom({orientation:orientation})}>
-              <Button size="sm" onClick={(_)=>{setZoom(()=>({...zoom, value:addZoom(zoom, zoom.step*-5)}))}}><AiOutlineZoomOut /></Button>
-                <input className={styles.zoomRange({orientation:orientation})} type="range" min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value??zoom.min} onChange={(e)=>{setZoom(()=>({...zoom, value:Number(e.target.value)??zoom.min}))}}/> 
-              <Button size="sm" onClick={(_)=>{setZoom(()=>({...zoom, value:addZoom(zoom, zoom.step*5)}))}}><AiOutlineZoomIn /></Button>
-            </div>
+    <div className={styles.container({orientation:orientation, fitScreen:fitScreen})}>
+      {cameras !== undefined && 
+        <div className={styles.toolbar({orientation:orientation})}>
+          { Html5QrcodeScannerState.NOT_STARTED < state && 
+            <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.NOT_STARTED)}>
+              <SlClose />
+            </Button>
           }
         </div>
-        {cameras !== undefined && !error && 
-          <div className={styles.toolbar({orientation:orientation})}>
-            <Button disabled={!cameras || cameras.length < 2 || state < Html5QrcodeScannerState.SCANNING } onClick={setNextCameraId}><MdFlipCameraAndroid /></Button> 
-            {state === Html5QrcodeScannerState.SCANNING ?
-              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.PAUSED)}><FaPause /></Button>:
-              <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}><FaPlay /></Button>
+      }
+      <div className={styles.main}>
+        {cameras === undefined && !error && <Card type='loading'></Card>}
+        {!!error ?
+          <Card type='error' title="ERROR" message={error.message}></Card>:
+          <>
+            <Decoder 
+              state={state} 
+              cameraId={cameraId}
+              config={config}
+              torch={torch} 
+              zoom={zoom} 
+              onChangeState={(v)=>setState(v)} 
+              onChangeTorch={(v)=>setTorch(v)} 
+              onChangeZoom={(v)=>setZoom(v)} 
+              onChangeCameraId={(v)=>!!v && setCameraId(v)} 
+              onChangeCameras={(v)=>setCameras(v)} 
+              onError={(v)=>setError(v)} 
+              onScanSuccess={ (_, result)=>{console.log(result); setScannerResult(result);}}
+              onScanError={(_, error)=>{/*console.log(error); setScannerError(error); */}}
+            />
+            {cameras !== undefined &&  Html5QrcodeScannerState.NOT_STARTED < state && 
+              <div className={styles.barcodeIcon}>
+                <BarcodeIcon format={format} rumble={!isUnrumble()} color={iconColor}/>
+              </div>
             }
-            <Button disabled={!torch || !torch.isSupported} onClick={toggleTorch}>
-              {!torch?.value?<MdFlashlightOn />:<MdFlashlightOff />}
-            </Button>
-          </div>
+
+            { zoom && zoom.isSupported && Html5QrcodeScannerState.NOT_STARTED < state &&
+              <div className={styles.zoom({orientation:orientation})}>
+                <Button size="sm" onClick={(_)=>{setZoom(()=>({...zoom, value:addZoom(zoom, zoom.step*-5)}))}}><AiOutlineZoomOut /></Button>
+                  <input className={styles.zoomRange({orientation:orientation})} type="range" min={zoom.min} max={zoom.max} step={zoom.step} value={zoom.value??zoom.min} onChange={(e)=>{setZoom(()=>({...zoom, value:Number(e.target.value)??zoom.min}))}}/> 
+                <Button size="sm" onClick={(_)=>{setZoom(()=>({...zoom, value:addZoom(zoom, zoom.step*5)}))}}><AiOutlineZoomIn /></Button>
+              </div>
+            }
+          </>
         }
+        
       </div>
+      {cameras !== undefined && !error && 
+        <div className={styles.toolbar({orientation:orientation})}>
+          <Button disabled={!cameras || cameras.length < 2 || state < Html5QrcodeScannerState.SCANNING } onClick={setNextCameraId}><MdFlipCameraAndroid /></Button> 
+          {state === Html5QrcodeScannerState.SCANNING ?
+            <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.PAUSED)}><FaPause /></Button>:
+            <Button onClick={()=>setState((_)=>Html5QrcodeScannerState.SCANNING)}><FaPlay /></Button>
+          }
+          <Button disabled={!torch || !torch.isSupported} onClick={toggleTorch}>
+            {!torch?.value?<MdFlashlightOn />:<MdFlashlightOff />}
+          </Button>
+        </div>
+      }
     </div>
   )
 }

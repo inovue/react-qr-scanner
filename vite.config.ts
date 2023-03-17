@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import svgr from 'vite-plugin-svgr';
 import dts from "vite-plugin-dts";
+import { visualizer } from 'rollup-plugin-visualizer';
 import path from "path";
 
 // https://vitejs.dev/config/
@@ -25,5 +26,5 @@ export default defineConfig({
     sourcemap: true,
     emptyOutDir: true,
   },
-  plugins: [react(), vanillaExtractPlugin(), svgr(), dts()],
+  plugins: [react(), vanillaExtractPlugin(), svgr(), dts(), visualizer()],
 })

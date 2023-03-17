@@ -5,18 +5,26 @@ export const styles = {
   screen: style({
     width: '100dvw',
     height: '100dvh',
-    overflow: 'hidden',
-    backgroundColor: '#333333',
     position: 'relative',
   }),
   container: recipe({
     base:{
       position: 'relative',
-      height: '100%',
-      maxWidth: '640px',
       display: 'flex',
+      overflow: 'hidden',
+      backgroundColor: '#333333',
     },
     variants: {
+      fitScreen:{
+        true: {
+          height: '100dvh',
+          width: '100dvw',
+        },
+        false: {
+          height: '100%',
+          width: '100%',
+        }
+      },
       orientation: {
         portrait: {
           flexDirection: 'column',
@@ -28,6 +36,7 @@ export const styles = {
     },
     defaultVariants: {
       orientation: 'portrait',
+      fitScreen: false,
     },
   }),
   header: style({

@@ -22,6 +22,7 @@ export const Environment: Story = {
     mode: 'environment',
     delay: 1000,
     timeout: 0,
+    fitScreen: true,
     format: Html5QrcodeSupportedFormats.QR_CODE,
     onScanSuccess: (result) => console.log(result),
     onScanError: (error) => console.error(error)
