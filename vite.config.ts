@@ -6,6 +6,14 @@ import dts from "vite-plugin-dts";
 import { visualizer } from 'rollup-plugin-visualizer';
 import path from "path";
 
+import mdx from '@mdx-js/rollup';
+import remarkGfm from 'remark-gfm';
+
+const options = {
+  remarkPlugins: [remarkGfm],
+  rehypePlugins: [],
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -26,5 +34,8 @@ export default defineConfig({
     sourcemap: true,
     emptyOutDir: true,
   },
-  plugins: [react(), vanillaExtractPlugin(), svgr(), dts(), visualizer()],
+  plugins: [
+    react(), vanillaExtractPlugin(), svgr(), dts(), visualizer(), 
+    {enforce: 'pre', ...mdx(options)},
+  ],
 })
