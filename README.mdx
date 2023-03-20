@@ -1,8 +1,3 @@
-import { Meta } from '@storybook/blocks';
-
-<Meta title="Feature/Introduction" />
-
-
 # ReactCodeScanner
 
 ReactCodeScanner is a React component that enables QR and EAN/JAN barcode scanning in your web browser with minimum necessary settings. With a pre-defined user interface that manages all complex camera behaviors, you can focus on building features and defining camera states and behaviors during scanning.
@@ -34,15 +29,14 @@ ReactCodeScanner has the following props:
 | Name             | Type                                    | Default                              | Description                                                                                      |
 | ---------------- | --------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------ |
 | state (required) | ScannerState(Enum)                      |                                      | Defines the current state of the scanner                                                         |
-| mode             | string ('user' or 'environment')        | 'environment'                        | Defines the default facing mode of the camera (front or back)                                    |
-| config           | ScannerConfig(Object)                   | \{fps: 10, qrbox: 250}                | Defines the camera configuration, such as frames per second and QR code box size                 |
+| mode             | string ('user' or 'environment')        | 'environment'                        | Defines the default facing mode of the camera (front or back)                                     |
+| config           | ScannerConfig(Object)                   | {fps: 10, qrbox: 250}                | Defines the camera configuration, such as frames per second and QR code box size                  |
 | delay            | number                                  | 1000                                 | Defines the delay between scanned events in milliseconds                                         |
 | timeout          | number                                  | 60000                                | Defines the timeout in milliseconds for camera stoppage                                          |
-| format           | Html5QrcodeSupportedFormats             |                                      | Defines the supported barcode format                                                             |
-| fitScreen        | boolean                                 | false                                | Defines whether the scanner should fit the screen or not                                         |
-| onScanSuccess    | (result: Html5QrcodeResult) => void     |                                      | Defines the callback function for when scanning is successful                                    |
-| onScanError      | (error: Html5QrcodeError) => void       |                                      | Defines the callback function for when scanning fails                                            |
-
+| format           | Html5QrcodeSupportedFormats              |                                      | Defines the supported barcode format                                                               |
+| fitScreen        | boolean                                 | false                                | Defines whether the scanner should fit the screen or not                                          |
+| onScanSuccess    | (result: Html5QrcodeResult) => void     |                                      | Defines the callback function for when scanning is successful                                     |
+| onScanError      | (error: Html5QrcodeError) => void       |                                      | Defines the callback function for when scanning fails                                             |
 
 ### Types
 
