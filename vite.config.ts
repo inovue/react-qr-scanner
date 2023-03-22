@@ -28,7 +28,7 @@ export default defineConfig(({mode})=>{
   }
   return process.env.BUILD_TYPE === "docs" ? {
 
-      base: process.env.NODE_ENV==="production" ? "/react-code-scanner/" : "/",
+      base: process.env.NODE_ENV==="production" ? "/react-qr-scanner/" : "/",
       build: {
         //outDir: "docs"
       },
