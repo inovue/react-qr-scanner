@@ -2,7 +2,6 @@ import README from '../README.mdx'
 import { styles } from './App.css'
 
 import { MdQrCodeScanner } from 'react-icons/md'
-import {FaReact} from 'react-icons/fa'
 
 
 function App() {

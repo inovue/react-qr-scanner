@@ -1,5 +1,5 @@
 {
-  "name": "react-code",
+  "name": "react-qr-scanner",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -19,8 +19,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:docs": "vite build --mode docs",
     "prepare": "npm run build",
-    "preview": "vite preview",
+    "preview": "vite preview --outDir docs",
     "storybook": "storybook dev -p 6006",
     "storybook:https": "storybook dev -p 6006 --https --ssl-cert ./.cert/cert.pem --ssl-key ./.cert/key.pem",
     "build-storybook": "storybook build"

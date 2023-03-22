@@ -1,7 +1,5 @@
 import { style,keyframes } from '@vanilla-extract/css'
 
-
-//親要素の高さ分上下するトランジション
 export const scanning = keyframes({
   '0%': { transform: 'translate(-50%, -80px)' },
   '25%': { transform: 'translate(-50%, 0%)' },
