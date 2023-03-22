@@ -10,6 +10,7 @@ import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
 
 
+
 // https://vitejs.dev/config/
 export default defineConfig(({mode})=>{
   const mdxPlugin = {
@@ -26,6 +27,8 @@ export default defineConfig(({mode})=>{
     console.log("Skipping mdx plugin for storybook!")
   }
   return process.env.BUILD_TYPE === "docs" ? {
+
+      base: process.env.NODE_ENV==="production" ? "/react-code-scanner/" : "/",
       build: {
         //outDir: "docs"
       },
