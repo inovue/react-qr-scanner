@@ -27,11 +27,12 @@ export default defineConfig(({mode})=>{
   }
   return process.env.BUILD_TYPE === "docs" ? {
       build: {
-        outDir: "docs"
+        //outDir: "docs"
       },
       plugins
     } : {
       build: {
+        outDir: "libs",
         lib: {
           entry: path.resolve(__dirname, "index.ts"),
           name: "ReactCodeScanner",

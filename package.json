@@ -18,10 +18,10 @@
   ],
   "scripts": {
     "dev": "cross-env BUILD_TYPE=docs vite",
-    "build": "cross-env BUILD_TYPE=libs tsc && vite build",
-    "build:docs": "cross-env BUILD_TYPE=docs vite build",
+    "build": "tsc && cross-env BUILD_TYPE=docs vite build",
+    "build:libs": "tsc && cross-env BUILD_TYPE=libs vite build",
     "prepare": "cross-env BUILD_TYPE=libs npm run build",
-    "preview": "cross-env BUILD_TYPE=docs vite preview --outDir docs",
+    "preview": "cross-env BUILD_TYPE=docs vite preview",
     "storybook": "cross-env BUILD_TYPE=story storybook dev -p 6006",
     "storybook:https": "cross-env BUILD_TYPE=story storybook dev -p 6006 --https --ssl-cert ./.cert/cert.pem --ssl-key ./.cert/key.pem",
     "build-storybook": "cross-env BUILD_TYPE=story storybook build"
