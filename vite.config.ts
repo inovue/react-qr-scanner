@@ -12,15 +12,24 @@ import remarkGfm from 'remark-gfm';
 
 // https://vitejs.dev/config/
 export default defineConfig(({mode})=>{
-
-  return mode === "docs" ? {
+  const mdxPlugin = {
+    enforce: 'pre', 
+    ...mdx({
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [],
+    }
+  )}
+  let plugins = [react(), vanillaExtractPlugin(), svgr(), dts(), visualizer()]
+  if(process.env.BUILD_TYPE !== "story"){
+    plugins.push(mdxPlugin);
+  }else{
+    console.log("Skipping mdx plugin for storybook!")
+  }
+  return process.env.BUILD_TYPE === "docs" ? {
       build: {
-        outDir: mode,
-        plugins: [react(), vanillaExtractPlugin(), svgr(), dts(), visualizer(), {enforce: 'pre', ...mdx({
-          remarkPlugins: [remarkGfm],
-          rehypePlugins: [],
-        })}]
-      }
+        outDir: "docs"
+      },
+      plugins
     } : {
       build: {
         lib: {
@@ -40,6 +49,6 @@ export default defineConfig(({mode})=>{
         sourcemap: true,
         emptyOutDir: true,
       },
-      plugins: [react(), vanillaExtractPlugin(), svgr(), dts(), visualizer()]
+      plugins
     }
 })

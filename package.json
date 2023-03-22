@@ -17,20 +17,21 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "build:docs": "vite build --mode docs",
-    "prepare": "npm run build",
-    "preview": "vite preview --outDir docs",
-    "storybook": "storybook dev -p 6006",
-    "storybook:https": "storybook dev -p 6006 --https --ssl-cert ./.cert/cert.pem --ssl-key ./.cert/key.pem",
-    "build-storybook": "storybook build"
+    "dev": "cross-env BUILD_TYPE=docs vite",
+    "build": "cross-env BUILD_TYPE=libs tsc && vite build",
+    "build:docs": "cross-env BUILD_TYPE=docs vite build",
+    "prepare": "cross-env BUILD_TYPE=libs npm run build",
+    "preview": "cross-env BUILD_TYPE=docs vite preview --outDir docs",
+    "storybook": "cross-env BUILD_TYPE=story storybook dev -p 6006",
+    "storybook:https": "cross-env BUILD_TYPE=story storybook dev -p 6006 --https --ssl-cert ./.cert/cert.pem --ssl-key ./.cert/key.pem",
+    "build-storybook": "cross-env BUILD_TYPE=story storybook build"
   },
   "dependencies": {
     "@mdx-js/rollup": "^2.3.0",
     "@vanilla-extract/css": "^1.9.5",
     "@vanilla-extract/recipes": "^0.3.0",
     "clsx": "^1.2.1",
+    "cross-env": "^7.0.3",
     "github-markdown-css": "^5.2.0",
     "html5-qrcode": "^2.3.7",
     "open-props": "^1.5.6",

@@ -16,10 +16,12 @@ const config: StorybookConfig = {
   docs: {
     autodocs: "tag",
   },
+  /*
   viteFinal: async (config) => {
     return mergeConfig(config, {
       plugins: [vanillaExtractPlugin()],
     });
   }
+  */
 };
 export default config;
