@@ -8,6 +8,7 @@ import path from "path";
 
 import mdx from '@mdx-js/rollup';
 import remarkGfm from 'remark-gfm';
+import remarkSlug from 'remark-slug';
 
 
 
@@ -16,7 +17,7 @@ export default defineConfig(({mode})=>{
   const mdxPlugin = {
     enforce: 'pre', 
     ...mdx({
-      remarkPlugins: [remarkGfm],
+      remarkPlugins: [remarkGfm, remarkSlug],
       rehypePlugins: [],
     }
   )}

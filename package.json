@@ -40,6 +40,7 @@
     "react-icons": "^4.7.1",
     "react-use": "^17.4.0",
     "remark-gfm": "^3.0.1",
+    "remark-slug": "^7.0.1",
     "sanitize.css": "^13.0.0"
   },
   "devDependencies": {
